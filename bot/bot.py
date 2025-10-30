@@ -6,10 +6,14 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from telebot.types import InputMediaPhoto
 from dotenv import load_dotenv
 
-
 load_dotenv()
 bot = telebot.TeleBot(os.getenv("BOT_TOKEN"))
 URL = os.getenv('SERVER_URL')
+
+
+@bot.message_handler(commands=['start'])
+def hello(message):
+    bot.send_message(message.chat.id, "Hi")
 
 
 @bot.message_handler(commands=['get_all_friends'])
@@ -25,7 +29,9 @@ def get_all_friends(message):
             # Зробив окрему клаву для того щоб можна передати в калбек ID
             keyboard = InlineKeyboardMarkup()
             button = InlineKeyboardButton(text="Дізнатись більше", callback_data=f'id:{friend["id"]}')
-            keyboard.add(button)
+            button_ai = InlineKeyboardButton(text='Спитати AI',
+                                             switch_inline_query_current_chat=f'\nЗапитайте AI про професію {friend["profession"]}🔽\n')
+            keyboard.add(button, button_ai)
 
             bot.send_photo(message.chat.id, BytesIO(photo.content),
                            caption=text,
@@ -49,27 +55,31 @@ def handle_callback(call):
                 f'URL:\n{photo_url}'
                 )
 
+        keyboard = InlineKeyboardMarkup()
+        button_ai = InlineKeyboardButton(text='Спитати AI',
+                                         switch_inline_query_current_chat=f'\nЗапитайте AI про професію {friend["profession"]}🔽\n')
+        keyboard.add(button_ai)
+
         bot.edit_message_media(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
             media=InputMediaPhoto(
                 media=BytesIO(photo.content),
-                caption=text
-            )
+                caption=text,
+            ),
+            reply_markup=keyboard
         )
 
 
 user_state = {}
 
 
-# Старт
 @bot.message_handler(commands=['add_friend'])
 def start_step(message):
     user_state[message.chat.id] = {'step': 'name'}
     bot.send_message(message.chat.id, "Введи ім'я друга:")
 
 
-# Ім'я
 @bot.message_handler(func=lambda m: user_state.get(m.chat.id, {}).get('step') == 'name')
 def title_step(message):
     user_state[message.chat.id]['name'] = message.text
@@ -77,7 +87,6 @@ def title_step(message):
     bot.send_message(message.chat.id, "Професія друга:")
 
 
-# Професія
 @bot.message_handler(func=lambda m: user_state.get(m.chat.id, {}).get('step') == 'profession')
 def description_step(message):
     user_state[message.chat.id]['profession'] = message.text
@@ -85,7 +94,6 @@ def description_step(message):
     bot.send_message(message.chat.id, "Додай опис професії друга")
 
 
-# Опис професії друга
 @bot.message_handler(func=lambda m: user_state.get(m.chat.id, {}).get('step') == 'profession_description')
 def description_step(message):
     user_state[message.chat.id]['profession_description'] = message.text
@@ -93,7 +101,6 @@ def description_step(message):
     bot.send_message(message.chat.id, "Кинь фотку друга")
 
 
-# Фото
 @bot.message_handler(content_types=['photo'])
 def photo_step(message):
     file_info = bot.get_file(message.photo[-1].file_id)
@@ -122,6 +129,25 @@ def photo_step(message):
         bot.send_message(message.chat.id, f"Помилка: {response.status_code}")
 
     user_state.pop(message.chat.id, None)
+
+
+@bot.message_handler(content_types=['text'])
+def ai_handler(message):
+    if 'Запитайте AI про професію' in message.text:
+        question = message.text.split('\n')[-1]
+        profession = message.text.split('🔽')[0].split(' ')[-1]
+
+        url = URL + '/llm/ask'
+        response = requests.post(
+            url,
+            json={
+                'profession': profession,
+                'question': question
+            }
+        )
+        data = response.json()
+        ai_text = data["candidates"][0]["content"]["parts"][0]["text"]
+        bot.send_message(message.chat.id, ai_text)
 
 
 if __name__ == '__main__':

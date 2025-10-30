@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from google import genai
+import json
 
 load_dotenv()
 
@@ -19,4 +20,4 @@ def ask_llm_about_profession(profession: str, question: str) -> str:
         contents=prompt
     )
 
-    return response.text
+    return json.loads(response.json())

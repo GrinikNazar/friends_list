@@ -14,6 +14,6 @@ class LLMRequest(BaseModel):
 async def ask_llm(request: LLMRequest):
     try:
         answer = ask_llm_about_profession(request.profession, request.question)
-        return {"answer": answer}
+        return answer
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

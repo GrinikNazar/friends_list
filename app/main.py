@@ -26,6 +26,9 @@ class FriendCreate(BaseModel):
     profession_description: Optional[str] = None
 
 
+app.include_router(llm.router)
+
+
 @app.post("/friends", response_model=Friend)
 async def create_friend(
         name: str = Form(...),
@@ -67,4 +70,3 @@ def get_friend(id: str):
     return response["Item"]
 
 
-app.include_router(llm.router)
