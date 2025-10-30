@@ -5,6 +5,7 @@ from uuid import uuid4
 from typing import Optional, List
 from db import friends_table
 from aws_utils import save_file
+from routers import llm
 
 app = FastAPI(title="Friends API")
 
@@ -64,3 +65,6 @@ def get_friend(id: str):
     if "Item" not in response:
         raise HTTPException(status_code=404, detail="Friend not found")
     return response["Item"]
+
+
+app.include_router(llm.router)

@@ -1,14 +1,15 @@
+import os
 import telebot
 import requests
 from io import BytesIO
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from telebot.types import InputMediaPhoto
+from dotenv import load_dotenv
 
-token = '8492188369:AAEnB1n1_ChDPlN0HaDoRH3elBY3z1gbKJM'
 
-bot = telebot.TeleBot(token)
-
-URL = 'http://127.0.0.1:8000'
+load_dotenv()
+bot = telebot.TeleBot(os.getenv("BOT_TOKEN"))
+URL = os.getenv('SERVER_URL')
 
 
 @bot.message_handler(commands=['get_all_friends'])
@@ -56,6 +57,7 @@ def handle_callback(call):
                 caption=text
             )
         )
+
 
 user_state = {}
 
