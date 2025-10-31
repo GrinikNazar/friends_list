@@ -13,7 +13,8 @@ URL = os.getenv('SERVER_URL')
 
 @bot.message_handler(commands=['start'])
 def hello(message):
-    bot.send_message(message.chat.id, "Hi")
+    bot.send_message(message.chat.id,
+                     "Привіт, тут ти можеш зробити список друзі та вказати їхні професії. Вперед ознайомся з командами та спробуй щось поклацати.")
 
 
 @bot.message_handler(commands=['get_all_friends'])
@@ -136,6 +137,8 @@ def ai_handler(message):
     if 'Запитайте AI про професію' in message.text:
         question = message.text.split('\n')[-1]
         profession = message.text.split('🔽')[0].split(' ')[-1]
+
+        bot.send_message(message.chat.id, 'Зачекайте будь ласка AI думає ...')
 
         url = URL + '/llm/ask'
         response = requests.post(

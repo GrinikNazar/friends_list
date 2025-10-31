@@ -68,5 +68,3 @@ def get_friend(id: str):
     if "Item" not in response:
         raise HTTPException(status_code=404, detail="Friend not found")
     return response["Item"]
-
-
