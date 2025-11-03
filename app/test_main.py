@@ -1,16 +1,14 @@
 import io
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from app.main import app
 
 client = TestClient(app)
 
 
-# ------------------------------
 # Мок для save_file, щоб не залучати AWS
-# ------------------------------
 @pytest.fixture(autouse=True)
 def mock_save_file():
     with patch("app.main.save_file") as mock_func:
@@ -18,17 +16,13 @@ def mock_save_file():
         yield mock_func
 
 
-# ------------------------------
 # Тест: створення друга без обов'язкових полів
-# ------------------------------
 def test_create_friend_without_required_fields():
     response = client.post("/friends", data={})
     assert response.status_code == 422  # ValidationError через Form(...)
 
 
-# ------------------------------
 # Тест: створення друга з валідним фото
-# ------------------------------
 def test_create_friend_with_photo():
     file_content = io.BytesIO(b"fake image data")
     files = {"photo": ("test.jpg", file_content, "image/jpeg")}
@@ -42,10 +36,10 @@ def test_create_friend_with_photo():
     assert json_data["photo_url"] == "/media/test.jpg"
     assert "id" in json_data
 
+    client.delete(f"/friends/{response.json()['id']}")
 
-# ------------------------------
+
 # Тест: отримання списку друзів
-# ------------------------------
 def test_list_friends():
     # Створимо друга для перевірки списку
     file_content = io.BytesIO(b"fake image data")
@@ -60,10 +54,13 @@ def test_list_friends():
     assert isinstance(friends, list)
     assert any(f["name"] == "TestFriend" for f in friends)
 
+    # Видалення тестових друзів
+    for friend in friends:
+        if friend["name"] == "TestFriend":
+            client.delete(f"/friends/{friend['id']}")
 
-# ------------------------------
+
 # Тест: отримання конкретного друга по id
-# ------------------------------
 def test_get_friend():
     # Створимо друга
     file_content = io.BytesIO(b"fake image data")
@@ -83,3 +80,6 @@ def test_get_friend():
     # GET неіснуючого id
     bad_response = client.get("/friends/nonexistent-id")
     assert bad_response.status_code == 404
+
+    # Видалення тестового друга
+    client.delete(f"/friends/{friend_id}")

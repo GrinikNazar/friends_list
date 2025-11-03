@@ -3,9 +3,9 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from uuid import uuid4
 from typing import Optional, List
-from db import friends_table
-from aws_utils import save_file
-from routers import llm
+from app.db import friends_table
+from app.aws_utils import save_file
+from app.routers import llm
 
 app = FastAPI(title="Friends API")
 
@@ -52,7 +52,7 @@ async def create_friend(
         photo_url=photo_url
     )
 
-    friends_table.put_item(Item=friend.dict())
+    friends_table.put_item(Item=friend.model_dump())
     return friend
 
 
@@ -68,3 +68,12 @@ def get_friend(id: str):
     if "Item" not in response:
         raise HTTPException(status_code=404, detail="Friend not found")
     return response["Item"]
+
+
+@app.delete("/friends/{id}")
+def delete_friend(id: str):
+    response = friends_table.get_item(Key={"id": id})
+    if "Item" not in response:
+        raise HTTPException(status_code=404, detail="Friend not found")
+
+    friends_table.delete_item(Key={"id": id})

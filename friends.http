@@ -1,0 +1,37 @@
+#Створити друга
+POST http://localhost:8000/friends
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="name"
+
+Anna
+--WebAppBoundary
+Content-Disposition: form-data; name="profession"
+
+Designer
+--WebAppBoundary
+Content-Disposition: form-data; name="photo"; filename="test.jpg"
+Content-Type: image/jpeg
+
+< ./media/test.jpg
+--WebAppBoundary--
+
+###
+
+# Отримати список друзів
+GET http://localhost:8000/friends
+
+###
+
+# Отримати друга за ID
+# Підставити ID з списку вище
+@friend_id=d9cdd9c5-0067-45d7-b942-ba3d01f7b71c 
+GET http://localhost:8000/friends/{{friend_id}}
+
+###
+
+# Видалити друга
+# Підставити ID з списку вище
+@friend_id=ef53a4b6-f901-4633-9f05-279251d3b429
+DELETE http://localhost:8000/friends/{{friend_id}}
