@@ -53,7 +53,6 @@ def handle_callback(call):
                 f'Ім\'я: {friend["name"]}\n'
                 f'Професія: {friend["profession"]}\n'
                 f'Опис професії: {friend["profession_description"]}\n'
-                f'URL:\n{photo_url}'
                 )
 
         keyboard = InlineKeyboardMarkup()

@@ -1,4 +1,4 @@
-# 🧑‍🤝‍🧑 Friends API + Telegram Bot
+# 🧑‍🤝Friends API + Telegram Bot
 
 Цей проєкт складається з:
 - **FastAPI бекенду**, який дозволяє створювати, переглядати та отримувати друзів;
@@ -16,7 +16,7 @@
 - [AWS S3 / DynamoDB](https://aws.amazon.com/)
 - [Docker & Docker Compose](https://www.docker.com/)
 - [pytest](https://pytest.org/)
-- 
+
 ## ⚙️ Встановлення та локальний запуск
 
 ### 1. Клонування репозиторію
@@ -67,7 +67,7 @@ python bot/bot.py
 pytest -v
 ```
 
-## 🐳 Запуск у Docker
+## 🐳 Запуск Docker
 ### Збірка образу
 ```
 docker compose up --build   
@@ -81,4 +81,9 @@ docker compose up --build
 | `GET`  | `/friends/{id}` | Отримати друга за ID   |
 | `DELETE`| `/friends/{id}`| Видалити друга по ID   |
 
+## 🐳 Запуск Docker на сервері Ubuntu
+```
+docker-compose build --no-cache
+docker-compose up -d
+```
 
