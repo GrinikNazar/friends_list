@@ -86,4 +86,8 @@ docker compose up --build
 docker-compose build --no-cache
 docker-compose up -d
 ```
+### Переглянути запущені контейнери Docker
+```
+docker ps
+```
 
