@@ -119,6 +119,7 @@ def photo_step(message):
             "name": name,
             'profession': profession,
             "profession_description": profession_description,
+            "telegram_id":  message.from_user.id,
         },
         files=files
     )
